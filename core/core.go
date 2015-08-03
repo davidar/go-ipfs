@@ -106,7 +106,7 @@ type IpfsNode struct {
 	Ping         *ping.PingService
 	Reprovider   *rp.Reprovider // the value reprovider system
 
-	IpnsFs *ipnsfs.Filesystem
+	Mfs *ipnsfs.Filesystem
 
 	proc goprocess.Process
 	ctx  context.Context
@@ -164,11 +164,11 @@ func NewIPFSNode(ctx context.Context, option ConfigOption) (*IpfsNode, error) {
 
 	// Setup the mutable ipns filesystem structure
 	if node.OnlineMode() {
-		fs, err := ipnsfs.NewFilesystem(ctx, node.DAG, node.Namesys, node.Pinning, node.PrivateKey)
+		fs, err := ipnsfs.NewFilesystem(ctx, node.DAG, node.Pinning)
 		if err != nil && err != kb.ErrLookupFailure {
 			return nil, err
 		}
-		node.IpnsFs = fs
+		node.Mfs = fs
 	}
 
 	success = true
@@ -391,8 +391,8 @@ func (n *IpfsNode) teardown() error {
 
 	// Filesystem needs to be closed before network, dht, and blockservice
 	// so it can use them as its shutting down
-	if n.IpnsFs != nil {
-		closers = append(closers, n.IpnsFs)
+	if n.Mfs != nil {
+		closers = append(closers, n.Mfs)
 	}
 
 	if n.Blocks != nil {

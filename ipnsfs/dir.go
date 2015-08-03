@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -138,7 +139,7 @@ func (d *Directory) childDir(name string) (*Directory, error) {
 func (d *Directory) childFromDag(name string) (*dag.Node, error) {
 	for _, lnk := range d.node.Links {
 		if lnk.Name == name {
-			ctx, cancel := context.WithTimeout(context.TODO(), time.Minute)
+			ctx, cancel := context.WithTimeout(d.fs.ctx, time.Minute)
 			defer cancel()
 
 			return lnk.GetNode(ctx, d.fs.dserv)
@@ -170,15 +171,39 @@ func (d *Directory) childUnsync(name string) (FSNode, error) {
 	return nil, os.ErrNotExist
 }
 
-func (d *Directory) List() []string {
+type NodeListing struct {
+	Name string
+	Type int
+	Size int64
+}
+
+func (d *Directory) List() ([]NodeListing, error) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	var out []string
-	for _, lnk := range d.node.Links {
-		out = append(out, lnk.Name)
+	var out []NodeListing
+	for _, l := range d.node.Links {
+		child := NodeListing{}
+		child.Name = l.Name
+
+		c, err := d.childUnsync(l.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		child.Type = int(c.Type())
+		if c, ok := c.(*File); ok {
+			size, err := c.Size()
+			if err != nil {
+				return nil, err
+			}
+			child.Size = size
+		}
+
+		out = append(out, child)
 	}
-	return out
+
+	return out, nil
 }
 
 func (d *Directory) Mkdir(name string) (*Directory, error) {
@@ -195,6 +220,12 @@ func (d *Directory) Mkdir(name string) (*Directory, error) {
 	}
 
 	ndir := &dag.Node{Data: ft.FolderPBData()}
+
+	_, err = d.fs.dserv.Add(ndir)
+	if err != nil {
+		return nil, err
+	}
+
 	err = d.node.AddNodeLinkClean(name, ndir)
 	if err != nil {
 		return nil, err
@@ -267,4 +298,29 @@ func (d *Directory) Lock() {
 
 func (d *Directory) Unlock() {
 	d.lock.Unlock()
+}
+
+func DirLookup(d *Directory, path string) (FSNode, error) {
+	path = strings.Trim(path, "/")
+	parts := strings.Split(path, "/")
+	if len(parts) == 1 && parts[0] == "" {
+		return d, nil
+	}
+
+	var cur FSNode
+	cur = d
+	for i, p := range parts {
+		chdir, ok := cur.(*Directory)
+		if !ok {
+			return nil, fmt.Errorf("cannot access %s: Not a directory", strings.Join(parts[:i+1], "/"))
+		}
+
+		child, err := chdir.Child(p)
+		if err != nil {
+			return nil, err
+		}
+
+		cur = child
+	}
+	return cur, nil
 }
