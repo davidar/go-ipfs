@@ -50,8 +50,8 @@ import (
 	rp "github.com/ipfs/go-ipfs/exchange/reprovide"
 
 	mount "github.com/ipfs/go-ipfs/fuse/mount"
-	ipnsfs "github.com/ipfs/go-ipfs/ipnsfs"
 	merkledag "github.com/ipfs/go-ipfs/merkledag"
+	mfs "github.com/ipfs/go-ipfs/mfs"
 	namesys "github.com/ipfs/go-ipfs/namesys"
 	path "github.com/ipfs/go-ipfs/path"
 	pin "github.com/ipfs/go-ipfs/pin"
@@ -106,7 +106,7 @@ type IpfsNode struct {
 	Ping         *ping.PingService
 	Reprovider   *rp.Reprovider // the value reprovider system
 
-	Mfs *ipnsfs.Filesystem
+	Mfs *mfs.Filesystem
 
 	proc goprocess.Process
 	ctx  context.Context
@@ -164,7 +164,7 @@ func NewIPFSNode(ctx context.Context, option ConfigOption) (*IpfsNode, error) {
 
 	// Setup the mutable ipns filesystem structure
 	if node.OnlineMode() {
-		fs, err := ipnsfs.NewFilesystem(ctx, node.DAG, node.Pinning)
+		fs, err := mfs.NewFilesystem(ctx, node.DAG, node.Pinning)
 		if err != nil && err != kb.ErrLookupFailure {
 			return nil, err
 		}
