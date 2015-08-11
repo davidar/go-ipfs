@@ -68,7 +68,7 @@ ipfs swarm peers lists the set of peers this node is connected to.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrClient)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrClient)
 			return
 		}
 
@@ -108,7 +108,7 @@ ipfs swarm addrs lists all addresses this node is aware of.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrClient)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrClient)
 			return
 		}
 
@@ -171,7 +171,7 @@ ipfs swarm addrs local lists all local addresses the node is listening on.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrClient)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrClient)
 			return
 		}
 
@@ -222,7 +222,7 @@ ipfs swarm connect /ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQAwe3
 		addrs := req.Arguments()
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrClient)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrClient)
 			return
 		}
 
@@ -275,7 +275,7 @@ ipfs swarm disconnect /ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQA
 		addrs := req.Arguments()
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrClient)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrClient)
 			return
 		}
 
@@ -393,7 +393,7 @@ Filters default to those specified under the "Swarm.AddrFilters" config key.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrNormal)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrNormal)
 			return
 		}
 
@@ -440,7 +440,7 @@ add your filters to the ipfs config file.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrNormal)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrNormal)
 			return
 		}
 
@@ -482,7 +482,7 @@ remove your filters from the ipfs config file.
 		}
 
 		if n.PeerHost == nil {
-			res.SetError(errNotOnline, cmds.ErrNormal)
+			res.SetError(cmds.ErrNotOnline, cmds.ErrNormal)
 			return
 		}
 

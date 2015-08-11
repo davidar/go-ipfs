@@ -50,7 +50,7 @@ func getDagservAndPinner(t *testing.T) dagservAndPinner {
 
 func getRandFile(t *testing.T, ds dag.DAGService, size int64) *dag.Node {
 	r := io.LimitReader(u.NewTimeSeededRand(), size)
-	nd, err := importer.BuildDagFromReader(r, ds, chunk.DefaultSplitter, nil)
+	nd, err := importer.BuildDagFromReader(ds, chunk.NewSizeSplitter(r, chunk.DefaultBlockSize), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
