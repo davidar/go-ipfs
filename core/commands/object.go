@@ -29,7 +29,7 @@ const inputLimit = 512 * 1024
 
 type Node struct {
 	Links []Link
-	Data  string
+	Data  []byte
 }
 
 type Link struct {
@@ -197,7 +197,7 @@ This command outputs data in the following encodings:
 
 		node := &Node{
 			Links: make([]Link, len(object.Links)),
-			Data:  string(object.Data),
+			Data:  object.Data,
 		}
 
 		for i, link := range object.Links {
